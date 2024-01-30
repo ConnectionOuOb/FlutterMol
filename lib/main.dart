@@ -1,3 +1,4 @@
+import 'geometry/point.dart';
 import 'storage.dart';
 import 'data/query.dart';
 import 'data/subject.dart';
@@ -14,7 +15,7 @@ void main() async {
     await saveLocalStoragePDB(query, subject);
   }
 
-  loadLocalStoragePDB();
+  await loadLocalStoragePDB();
   runApp(const FlutterMol());
 }
 
@@ -50,20 +51,13 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    final size =MediaQuery.of(context).size;
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
+      body: Point3dView(
+        point3Ds: const [],
+        width: size.width,
+        height: size.height,
+        scaleFactor: 1,
       ),
     );
   }
