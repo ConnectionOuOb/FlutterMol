@@ -1,10 +1,13 @@
+import 'geometry/controller.dart';
 import 'geometry/point.dart';
 import 'storage.dart';
 import 'data/query.dart';
 import 'data/subject.dart';
 import 'package:flutter/material.dart';
 
+double scale = 8;
 bool isDebug = true;
+late StructureController controller;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +18,7 @@ void main() async {
     await saveLocalStoragePDB(query, subject);
   }
 
-  await loadLocalStoragePDB();
+  await loadLocalStoragePDB().then((value) => controller = value);
   runApp(const FlutterMol());
 }
 
@@ -51,13 +54,13 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    final size =MediaQuery.of(context).size;
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Point3dView(
-        point3Ds: const [],
+        controller: controller,
         width: size.width,
         height: size.height,
-        scaleFactor: 1,
+        scaleFactor: scale,
       ),
     );
   }

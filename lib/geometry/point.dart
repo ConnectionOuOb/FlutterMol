@@ -1,11 +1,12 @@
+import 'controller.dart';
 import 'dart:ui';
 import 'dart:math';
 import 'package:flutter/material.dart';
 
 class Point3dView extends StatefulWidget {
-  const Point3dView({super.key, required this.point3Ds, required this.width, required this.height, required this.scaleFactor});
+  const Point3dView({super.key, required this.controller, required this.width, required this.height, required this.scaleFactor});
 
-  final List<Point3D> point3Ds;
+  final StructureController controller;
   final double width;
   final double height;
   final double scaleFactor;
@@ -30,7 +31,7 @@ class _Point3dViewState extends State<Point3dView> {
       child: CustomPaint(
         size: Size(widget.width, widget.height),
         painter: ThreeDPointsPainter(
-          regularization(widget.point3Ds),
+          regularization(widget.controller.points),
           widget.scaleFactor,
           rotationX,
           rotationY,
@@ -55,13 +56,13 @@ class _Point3dViewState extends State<Point3dView> {
     double centerY = totalY / points.length;
     double centerZ = totalZ / points.length;
 
-    return Point3D(centerX, centerY, centerZ);
+    return Point3D(false, false, centerX, centerY, centerZ);
   }
 
   List<Point3D> regularization(List<Point3D> points) {
-    Point3D center = calculateCenterPoint(widget.point3Ds);
+    Point3D center = calculateCenterPoint(widget.controller.points);
     return points.map((e) {
-      return Point3D(e.x - center.x, e.y - center.y, e.z - center.z);
+      return Point3D(e.isBackBone, e.isNitrogen, e.x - center.x, e.y - center.y, e.z - center.z);
     }).toList();
   }
 }
@@ -79,7 +80,13 @@ class ThreeDPointsPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final transformedPoints = points.map((point) {
-      final scaledPoint = Point3D(point.x * scaleFactor, point.y * scaleFactor, point.z * scaleFactor);
+      final scaledPoint = Point3D(
+        point.isBackBone,
+        point.isNitrogen,
+        point.x * scaleFactor,
+        point.y * scaleFactor,
+        point.z * scaleFactor,
+      );
       final rotatedPoint = rotatePoint(scaledPoint, rotationX, rotationY);
       return rotatedPoint.translate(origin.dx, origin.dy, center);
     }).toList();
@@ -118,28 +125,6 @@ class ThreeDPointsPainter extends CustomPainter {
     final rotatedY = point.x * sinY * sinX + point.y * cosX + point.z * sinX * cosY;
     final rotatedZ = point.x * sinY * cosX - point.y * sinX + point.z * cosX * cosY;
 
-    return Point3D(rotatedX, rotatedY, rotatedZ);
+    return Point3D(point.isBackBone, point.isNitrogen, rotatedX, rotatedY, rotatedZ);
   }
-}
-
-class Point3D {
-  final double x;
-  final double y;
-  final double z;
-
-  Point3D(this.x, this.y, this.z);
-
-  Offset toOffset() {
-    return Offset(x, y);
-  }
-
-  Point3D translate(double dx, double dy, [Offset center = Offset.zero]) {
-    return Point3D(center.dx + x + dx, center.dy + y + dy, z);
-  }
-
-  factory Point3D.fromJson(Map<String, dynamic> json) => Point3D(
-        json["x"] ?? 0.0,
-        json["y"] ?? 0.0,
-        json["z"] ?? 0.0,
-      );
 }
