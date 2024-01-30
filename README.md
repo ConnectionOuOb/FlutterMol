@@ -1,2 +1,2 @@
 # FlutterMol
- A portein structure viewer written by Flutter framwork
+ A protein structure viewer written by Flutter framework
