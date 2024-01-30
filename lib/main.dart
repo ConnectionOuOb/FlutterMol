@@ -1,11 +1,25 @@
+import 'storage.dart';
+import 'data/query.dart';
+import 'data/subject.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
+bool isDebug = true;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await clearLocalStoragePDB();
+
+  if (isDebug) {
+    await saveLocalStoragePDB(query, subject);
+  }
+
+  loadLocalStoragePDB();
+  runApp(const FlutterMol());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class FlutterMol extends StatelessWidget {
+  const FlutterMol({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,19 +30,19 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const MyHomePage(),
+      home: const MainPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MainPage> createState() => _MainPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();

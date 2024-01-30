@@ -1,4 +1,4 @@
-String subject =  '''
+String subject =  """
 HEADER    VIRAL PROTEIN                           02-NOV-20   5S1A              
 TITLE     PANDDA ANALYSIS GROUP DEPOSITION -- CRYSTAL STRUCTURE OF SARS-COV-2   
 TITLE    2 NSP3 MACRODOMAIN IN COMPLEX WITH EN300-43406                         
@@ -6375,4 +6375,4 @@ CONECT 2612 2611
 CONECT 2613 2605 2609                                                           
 MASTER      290    0    2   19   14    0    4    6 2903    2   18   26          
 END                                                                             
-''';
+""";

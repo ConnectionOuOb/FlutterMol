@@ -1,4 +1,4 @@
-String query =  '''
+String query =  """
 HEADER    PROTON TRANSPORT                        12-APR-19   6RD7              
 TITLE     CRYOEM STRUCTURE OF POLYTOMELLA F-ATP SYNTHASE, C-RING POSITION 1,    
 TITLE    2 FOCUSSED REFINEMENT OF FO AND PERIPHERAL STALK                       
@@ -18855,4 +18855,4 @@ CONECT17311167431677617424
 CONECT1742417311                                                                
 MASTER      959    0    1  112    4    0    1    617406   18    6  243          
 END                                                                             
-''';
+""";
