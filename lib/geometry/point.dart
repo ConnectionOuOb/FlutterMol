@@ -91,7 +91,7 @@ class ThreeDPointsPainter extends CustomPainter {
       return rotatedPoint.translate(origin.dx, origin.dy, center);
     }).toList();
 
-    for (int i = 0; i < transformedPoints.length - 1; i++) {
+    /*for (int i = 0; i < transformedPoints.length - 1; i++) {
       canvas.drawLine(
         transformedPoints[i].toOffset(),
         transformedPoints[i + 1].toOffset(),
@@ -100,7 +100,7 @@ class ThreeDPointsPainter extends CustomPainter {
           ..strokeWidth = 2.0
           ..strokeCap = StrokeCap.round,
       );
-    }
+    }*/
     canvas.drawPoints(
       PointMode.points,
       transformedPoints.map((e) => e.toOffset()).toList(),

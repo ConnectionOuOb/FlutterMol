@@ -20,7 +20,7 @@ Future<StructureController> loadLocalStoragePDB() async {
     //transform2Controller(subject);
   }
 
-  return StructureController(-1, false, [], [], []);
+  return StructureController(-1, false, [], []);
 }
 
 Future<void> saveLocalStoragePDB(String query, String subject) async {

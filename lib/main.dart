@@ -5,7 +5,7 @@ import 'data/query.dart';
 import 'data/subject.dart';
 import 'package:flutter/material.dart';
 
-double scale = 8;
+double scale = 5;
 bool isDebug = true;
 late StructureController controller;
 
@@ -19,6 +19,7 @@ void main() async {
   }
 
   await loadLocalStoragePDB().then((value) => controller = value);
+
   runApp(const FlutterMol());
 }
 
