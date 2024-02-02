@@ -7,14 +7,14 @@ import 'geometry/controller.dart';
 import 'package:flutter/material.dart';
 
 Setting setting = Setting(4.5, 1.5);
-late StructureController controller;
+late List<StructureController> controllers;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await clearLocalStoragePDB();
   await saveLocalStoragePDB(query, subject);
-  await loadLocalStoragePDB().then((value) => controller = value);
+  await loadLocalStoragePDB().then((value) => controllers = value);
 
   runApp(const FlutterMol());
 }
@@ -54,7 +54,7 @@ class _MainPageState extends State<MainPage> {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Point3dView(
-        controller: controller,
+        controllers: controllers,
         width: size.width,
         height: size.height,
         scaleFactor: setting.scale,
@@ -77,6 +77,30 @@ class _MainPageState extends State<MainPage> {
           },
           icon: Icon(Icons.zoom_out, color: setting.scale > setting.ratio ? Colors.black : Colors.grey),
         ),
+        controllers.isEmpty
+            ? const Text('No PDB data')
+            : Row(
+                children: controllers
+                    .map(
+                      (e) => TextButton(
+                        onPressed: () {
+                          setState(() {
+                            e.visible = !e.visible;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: e.visible ? Colors.white : Colors.grey,
+                            border: Border.all(color: Colors.black),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Text(e.name, style: const TextStyle(color: Colors.black)),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
         IconButton(
           onPressed: () {
             setState(() {
