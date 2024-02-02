@@ -1,4 +1,5 @@
 import 'controller.dart';
+import '../config.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 
@@ -70,8 +71,8 @@ class ThreeDPointsPainter extends CustomPainter {
       );*/
 
       for (var line in controller.lines) {
-        Point3D from = rotatePoint(line.from.scale(scaleFactor), rotationX, rotationY).setCenter(center);
-        Point3D to = rotatePoint(line.to.scale(scaleFactor), rotationX, rotationY).setCenter(center);
+        final from = rotatePoint(line.from.scale(scaleFactor), rotationX, rotationY).setCenter(center);
+        final to = rotatePoint(line.to.scale(scaleFactor), rotationX, rotationY).setCenter(center);
 
         canvas.drawLine(
             from.toOffset(),
@@ -79,10 +80,10 @@ class ThreeDPointsPainter extends CustomPainter {
             Paint()
               ..strokeWidth = 4.0
               ..color = line.isHelix
-                  ? Colors.blue
+                  ? colorSS[controller.showType].helix
                   : line.isSheet
-                      ? Colors.red
-                      : Colors.black);
+                      ? colorSS[controller.showType].sheet
+                      : colorSS[controller.showType].normal);
       }
     }
   }
