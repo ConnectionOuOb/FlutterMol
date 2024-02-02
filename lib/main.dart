@@ -1,4 +1,4 @@
-import 'setting.dart';
+import 'config.dart';
 import 'storage.dart';
 import 'data/query.dart';
 import 'data/subject.dart';
@@ -6,7 +6,6 @@ import 'geometry/point.dart';
 import 'geometry/controller.dart';
 import 'package:flutter/material.dart';
 
-Setting setting = Setting(4.5, 1.5);
 late List<StructureController> controllers;
 
 void main() async {
@@ -53,12 +52,16 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('FlutterMol'),
+      ),
       body: Point3dView(
         controllers: controllers,
         width: size.width,
         height: size.height,
         scaleFactor: setting.scale,
       ),
+      drawer: editList(),
       bottomNavigationBar: BottomAppBar(height: 60, child: controlBar()),
     );
   }
@@ -110,6 +113,71 @@ class _MainPageState extends State<MainPage> {
           icon: const Icon(Icons.zoom_in),
         ),
       ],
+    );
+  }
+
+  Widget editList() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(15),
+            color: Colors.blue,
+            alignment: Alignment.center,
+            child: const Text('Setting', style: TextStyle(color: Colors.white, fontSize: 20.0)),
+          ),
+          controllers.isEmpty
+              ? const ListTile(title: Text('No PDB data'))
+              : Column(
+                  children: controllers
+                      .map(
+                        (e) => Container(
+                          padding: const EdgeInsets.all(5),
+                          child: Column(
+                            children: [
+                              ExpansionTile(
+                                title: Text(e.name, style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
+                                children: [
+                                  ListTile(
+                                    title: TextButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          e.visible = !e.visible;
+                                        });
+                                      },
+                                      child: e.visible ? const Text('Hide structure') : const Text('Show structure'),
+                                    ),
+                                  ),
+                                  ExpansionTile(
+                                    title: const Text("Color theme", style: TextStyle(fontSize: 15.0)),
+                                    children: colorSS
+                                        .asMap()
+                                        .entries
+                                        .map(
+                                          (ss) => ListTile(
+                                            title: TextButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  e.showType = ss.key;
+                                                });
+                                              },
+                                              child: Text(ss.value.name, style: const TextStyle(fontSize: 15.0)),
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+        ],
+      ),
     );
   }
 }
