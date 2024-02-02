@@ -6,7 +6,7 @@ import 'geometry/point.dart';
 import 'geometry/controller.dart';
 import 'package:flutter/material.dart';
 
-Setting setting = Setting(6, 2);
+Setting setting = Setting(4.5, 1.5);
 late StructureController controller;
 
 void main() async {
