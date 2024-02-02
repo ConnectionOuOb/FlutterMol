@@ -1,10 +1,9 @@
 class Realm {
   int start;
   int end;
-  String startChain;
-  String endChain;
+  String chainID;
 
-  Realm(this.start, this.end, this.startChain, this.endChain);
+  Realm(this.start, this.end, this.chainID);
 }
 
 class Atom {
@@ -61,7 +60,6 @@ class PDB {
             int.parse(line.substring(21, 25).trim()),
             int.parse(line.substring(33, 37).trim()),
             line.substring(19, 20).trim(),
-            line.substring(31, 32).trim(),
           ),
         );
       } else if (line.startsWith("SHEET")) {
@@ -70,7 +68,6 @@ class PDB {
             int.parse(line.substring(22, 26).trim()),
             int.parse(line.substring(33, 37).trim()),
             line.substring(21, 22).trim(),
-            line.substring(32, 33).trim(),
           ),
         );
       } else if (line.startsWith("END")) {

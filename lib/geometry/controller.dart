@@ -24,21 +24,18 @@ class Point3D {
   }
 }
 
-class Line3D {
-  bool isHelix;
-  bool isSheet;
-  Point3D from;
-  Point3D to;
+class Partition {
+  int ssType;
+  List<Point3D> points;
 
-  Line3D(this.isHelix, this.isSheet, this.from, this.to);
+  Partition(this.ssType, this.points);
 }
 
 class StructureController {
   int showType;
   bool visible;
   String name;
-  List<Line3D> lines;
-  List<Point3D> points;
+  List<Partition> parts;
 
-  StructureController(this.showType, this.visible, this.name, this.lines, this.points);
+  StructureController(this.showType, this.visible, this.name, this.parts);
 }

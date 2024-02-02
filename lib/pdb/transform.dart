@@ -3,18 +3,15 @@ import '../geometry/controller.dart';
 
 List<String> backbones = ['N', 'CA', 'C'];
 
-bool inRealm(Point3D from, Point3D to, List<Realm> realms) {
+bool inRealm(Point3D p, List<Realm> realms) {
   bool result = false;
 
   for (var realm in realms) {
-    if (from.chainID != realm.startChain || to.chainID != realm.endChain) {
+    if (p.chainID != realm.chainID) {
       continue;
     }
 
-    if (from.residueSequenceNumber >= realm.start &&
-        from.residueSequenceNumber <= realm.end &&
-        to.residueSequenceNumber >= realm.start &&
-        to.residueSequenceNumber <= realm.end) {
+    if (p.residueSequenceNumber >= realm.start && p.residueSequenceNumber <= realm.end) {
       result = true;
       break;
     }
@@ -42,8 +39,8 @@ Point3D computeCenterPoint(List<Point3D> points) {
 }
 
 StructureController transform2Controller(String name, String textPDB) {
-  List<Line3D> lines = [];
   List<Point3D> points = [];
+  List<Partition> parts = [];
 
   PDB pdbData = PDB.fromText(textPDB);
 
@@ -63,21 +60,25 @@ StructureController transform2Controller(String name, String textPDB) {
     return Point3D(e.isBackBone, e.isNitrogen, e.residueSequenceNumber, e.chainID, e.x - center.x, e.y - center.y, e.z - center.z);
   }).toList();
 
-  for (var idx = 0; idx < points.length - 1; idx++) {
-    int nextIdx = idx + 1;
+  String previousChain = "";
+  for (var p in points) {
+    int ssType = inRealm(p, pdbData.helices)
+        ? 1
+        : inRealm(p, pdbData.sheets)
+            ? 2
+            : 0;
 
-    if (points[idx].chainID != points[nextIdx].chainID) {
-      continue;
-    }
-
-    if (inRealm(points[idx], points[nextIdx], pdbData.helices)) {
-      lines.add(Line3D(true, false, points[idx], points[nextIdx]));
-    } else if (inRealm(points[idx], points[nextIdx], pdbData.sheets)) {
-      lines.add(Line3D(false, true, points[idx], points[nextIdx]));
+    if (parts.isEmpty) {
+      parts.add(Partition(ssType, [p]));
     } else {
-      lines.add(Line3D(false, false, points[idx], points[nextIdx]));
+      if (parts.last.ssType == ssType && p.chainID == previousChain) {
+        parts.last.points.add(p);
+      } else {
+        parts.add(Partition(ssType, [p]));
+      }
     }
+    previousChain = p.chainID;
   }
 
-  return StructureController(0, true, name, lines, points);
+  return StructureController(0, true, name, parts);
 }
