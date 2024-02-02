@@ -2,7 +2,8 @@ import 'config.dart';
 import 'storage.dart';
 import 'data/query.dart';
 import 'data/subject.dart';
-import 'geometry/point.dart';
+//import 'data/test_data.dart';
+import 'geometry/draw.dart';
 import 'geometry/controller.dart';
 import 'package:flutter/material.dart';
 
@@ -83,26 +84,67 @@ class _MainPageState extends State<MainPage> {
         controllers.isEmpty
             ? const Text('No PDB data')
             : Row(
-                children: controllers
-                    .map(
-                      (e) => TextButton(
-                        onPressed: () {
-                          setState(() {
-                            e.visible = !e.visible;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            color: e.visible ? Colors.white : Colors.grey,
-                            border: Border.all(color: Colors.black),
-                            borderRadius: BorderRadius.circular(5),
+                children: [
+                  Row(
+                    children: controllers
+                        .map(
+                          (e) => TextButton(
+                            onPressed: () {
+                              setState(() {
+                                e.visible = !e.visible;
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              decoration: BoxDecoration(
+                                color: e.visible ? Colors.white : Colors.grey,
+                                border: Border.all(color: Colors.black),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Text(e.name, style: const TextStyle(color: Colors.black)),
+                            ),
                           ),
-                          child: Text(e.name, style: const TextStyle(color: Colors.black)),
-                        ),
+                        )
+                        .toList(),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        for (var e in controllers) {
+                          e.visible = true;
+                        }
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.circular(5),
                       ),
-                    )
-                    .toList(),
+                      child: const Text("Show all structure", style: TextStyle(color: Colors.black)),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        for (var e in controllers) {
+                          e.visible = true;
+                          e.showType = 0;
+                        }
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: const Text("Reset", style: TextStyle(color: Colors.black)),
+                    ),
+                  ),
+                ],
               ),
         IconButton(
           onPressed: () {
