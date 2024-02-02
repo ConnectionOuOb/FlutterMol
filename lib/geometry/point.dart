@@ -31,7 +31,7 @@ class _Point3dViewState extends State<Point3dView> {
       child: CustomPaint(
         size: Size(widget.width, widget.height),
         painter: ThreeDPointsPainter(
-          regularization(widget.controller.points),
+          widget.controller.points,
           widget.scaleFactor,
           rotationX,
           rotationY,
@@ -39,31 +39,6 @@ class _Point3dViewState extends State<Point3dView> {
         ),
       ),
     );
-  }
-
-  Point3D calculateCenterPoint(List<Point3D> points) {
-    double totalX = 0.0;
-    double totalY = 0.0;
-    double totalZ = 0.0;
-
-    for (var point in points) {
-      totalX += point.x;
-      totalY += point.y;
-      totalZ += point.z;
-    }
-
-    double centerX = totalX / points.length;
-    double centerY = totalY / points.length;
-    double centerZ = totalZ / points.length;
-
-    return Point3D(false, false, centerX, centerY, centerZ);
-  }
-
-  List<Point3D> regularization(List<Point3D> points) {
-    Point3D center = calculateCenterPoint(widget.controller.points);
-    return points.map((e) {
-      return Point3D(e.isBackBone, e.isNitrogen, e.x - center.x, e.y - center.y, e.z - center.z);
-    }).toList();
   }
 }
 

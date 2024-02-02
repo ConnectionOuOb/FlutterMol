@@ -1,7 +1,7 @@
 import 'format.dart';
 import '../geometry/controller.dart';
 
-List<String> backbones = ['N', 'CA', 'C', 'O'];
+List<String> backbones = ['N', 'CA', 'C'];
 
 bool inRealm(Atom from, Atom to, List<Realm> realms) {
   bool result = false;
@@ -23,14 +23,38 @@ bool inRealm(Atom from, Atom to, List<Realm> realms) {
   return result;
 }
 
+Point3D computeCenterPoint(List<Point3D> points) {
+  double totalX = 0.0;
+  double totalY = 0.0;
+  double totalZ = 0.0;
+
+  for (var point in points) {
+    totalX += point.x;
+    totalY += point.y;
+    totalZ += point.z;
+  }
+
+  double centerX = totalX / points.length;
+  double centerY = totalY / points.length;
+  double centerZ = totalZ / points.length;
+
+  return Point3D(false, false, centerX, centerY, centerZ);
+}
+
 StructureController transform2Controller(String textPDB) {
   PDB pdbData = PDB.fromText(textPDB);
   List<Line3D> lines = [];
   List<Point3D> points = [];
 
   for (var idx = 0; idx < pdbData.atoms.length; idx++) {
+    bool isBackBone = backbones.contains(pdbData.atoms[idx].name);
+
+    if (!isBackBone) {
+      continue;
+    }
+
     Point3D thisPoint = Point3D(
-      backbones.contains(pdbData.atoms[idx].name),
+      isBackBone,
       pdbData.atoms[idx].name == 'N',
       pdbData.atoms[idx].x,
       pdbData.atoms[idx].y,
@@ -58,5 +82,14 @@ StructureController transform2Controller(String textPDB) {
     }
   }
 
-  return StructureController(0, true, lines, points);
+  Point3D center = computeCenterPoint(points);
+
+  return StructureController(
+    0,
+    true,
+    lines,
+    points.map((e) {
+      return Point3D(e.isBackBone, e.isNitrogen, e.x - center.x, e.y - center.y, e.z - center.z);
+    }).toList(),
+  );
 }

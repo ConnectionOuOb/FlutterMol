@@ -1,23 +1,19 @@
-import 'geometry/controller.dart';
-import 'geometry/point.dart';
+import 'setting.dart';
 import 'storage.dart';
 import 'data/query.dart';
 import 'data/subject.dart';
+import 'geometry/point.dart';
+import 'geometry/controller.dart';
 import 'package:flutter/material.dart';
 
-double scale = 5;
-bool isDebug = true;
+Setting setting = Setting(6, 2);
 late StructureController controller;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await clearLocalStoragePDB();
-
-  if (isDebug) {
-    await saveLocalStoragePDB(query, subject);
-  }
-
+  await saveLocalStoragePDB(query, subject);
   await loadLocalStoragePDB().then((value) => controller = value);
 
   runApp(const FlutterMol());
@@ -61,8 +57,35 @@ class _MainPageState extends State<MainPage> {
         controller: controller,
         width: size.width,
         height: size.height,
-        scaleFactor: scale,
+        scaleFactor: setting.scale,
       ),
+      bottomNavigationBar: BottomAppBar(height: 60, child: controlBar()),
+    );
+  }
+
+  Widget controlBar() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        IconButton(
+          onPressed: () {
+            setState(() {
+              if (setting.scale > setting.ratio) {
+                setting.scale -= setting.ratio;
+              }
+            });
+          },
+          icon: Icon(Icons.zoom_out, color: setting.scale > setting.ratio ? Colors.black : Colors.grey),
+        ),
+        IconButton(
+          onPressed: () {
+            setState(() {
+              setting.scale += setting.ratio;
+            });
+          },
+          icon: const Icon(Icons.zoom_in),
+        ),
+      ],
     );
   }
 }
