@@ -1,12 +1,11 @@
 import 'controller.dart';
-import 'dart:ui';
 import 'dart:math';
 import 'package:flutter/material.dart';
 
 class Point3dView extends StatefulWidget {
-  const Point3dView({super.key, required this.controller, required this.width, required this.height, required this.scaleFactor});
+  const Point3dView({super.key, required this.controllers, required this.width, required this.height, required this.scaleFactor});
 
-  final StructureController controller;
+  final List<StructureController> controllers;
   final double width;
   final double height;
   final double scaleFactor;
@@ -31,8 +30,7 @@ class _Point3dViewState extends State<Point3dView> {
       child: CustomPaint(
         size: Size(widget.width, widget.height),
         painter: ThreeDPointsPainter(
-          widget.controller.lines,
-          widget.controller.points,
+          widget.controllers,
           widget.scaleFactor,
           rotationX,
           rotationY,
@@ -44,44 +42,49 @@ class _Point3dViewState extends State<Point3dView> {
 }
 
 class ThreeDPointsPainter extends CustomPainter {
-  final List<Line3D> lines;
-  final List<Point3D> points;
+  final List<StructureController> controllers;
   final double scaleFactor;
   final double rotationX;
   final double rotationY;
   final Offset center;
 
-  ThreeDPointsPainter(this.lines, this.points, this.scaleFactor, this.rotationX, this.rotationY, [this.center = Offset.zero]);
+  ThreeDPointsPainter(this.controllers, this.scaleFactor, this.rotationX, this.rotationY, [this.center = Offset.zero]);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final transformedPoints = points.map((point) {
-      return rotatePoint(point.scale(scaleFactor), rotationX, rotationY).setCenter(center);
-    }).toList();
+    for (var controller in controllers) {
+      if (!controller.visible) {
+        continue;
+      }
 
-    for (var line in lines) {
-      Point3D from = rotatePoint(line.from.scale(scaleFactor), rotationX, rotationY).setCenter(center);
-      Point3D to = rotatePoint(line.to.scale(scaleFactor), rotationX, rotationY).setCenter(center);
+      /*List<Point3D> transformedPoints = controller.points.map((point) {
+        return rotatePoint(point.scale(scaleFactor), rotationX, rotationY).setCenter(center);
+      }).toList();
 
-      canvas.drawLine(
-          from.toOffset(),
-          to.toOffset(),
-          Paint()
-            ..strokeWidth = 4.0
-            ..color = line.isHelix
-                ? Colors.blue
-                : line.isSheet
-                    ? Colors.red
-                    : Colors.black);
+      canvas.drawPoints(
+        PointMode.points,
+        transformedPoints.map((e) => e.toOffset()).toList(),
+        Paint()
+          ..color = Colors.redAccent
+          ..strokeWidth = 2.0,
+      );*/
+
+      for (var line in controller.lines) {
+        Point3D from = rotatePoint(line.from.scale(scaleFactor), rotationX, rotationY).setCenter(center);
+        Point3D to = rotatePoint(line.to.scale(scaleFactor), rotationX, rotationY).setCenter(center);
+
+        canvas.drawLine(
+            from.toOffset(),
+            to.toOffset(),
+            Paint()
+              ..strokeWidth = 4.0
+              ..color = line.isHelix
+                  ? Colors.blue
+                  : line.isSheet
+                      ? Colors.red
+                      : Colors.black);
+      }
     }
-
-    /*canvas.drawPoints(
-      PointMode.points,
-      transformedPoints.map((e) => e.toOffset()).toList(),
-      Paint()
-        ..color = Colors.redAccent
-        ..strokeWidth = 5.0,
-    );*/
   }
 
   @override

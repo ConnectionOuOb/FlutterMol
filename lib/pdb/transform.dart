@@ -41,10 +41,11 @@ Point3D computeCenterPoint(List<Point3D> points) {
   return Point3D(false, false, 0, "", centerX, centerY, centerZ);
 }
 
-StructureController transform2Controller(String textPDB) {
-  PDB pdbData = PDB.fromText(textPDB);
+StructureController transform2Controller(String name, String textPDB) {
   List<Line3D> lines = [];
   List<Point3D> points = [];
+
+  PDB pdbData = PDB.fromText(textPDB);
 
   for (var atom in pdbData.atoms) {
     bool isBackBone = backbones.contains(atom.name);
@@ -78,5 +79,5 @@ StructureController transform2Controller(String textPDB) {
     }
   }
 
-  return StructureController(0, true, lines, points);
+  return StructureController(0, true, name, lines, points);
 }

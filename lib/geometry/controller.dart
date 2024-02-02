@@ -35,9 +35,10 @@ class Line3D {
 
 class StructureController {
   int showType;
-  bool canView;
+  bool visible;
+  String name;
   List<Line3D> lines;
   List<Point3D> points;
 
-  StructureController(this.showType, this.canView, this.lines, this.points);
+  StructureController(this.showType, this.visible, this.name, this.lines, this.points);
 }
