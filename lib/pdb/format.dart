@@ -47,8 +47,8 @@ class PDB {
           Atom(
             int.parse(line.substring(6, 11).trim()),
             line.substring(12, 16).trim(),
-            line.substring(16, 17).trim(),
             line.substring(17, 20).trim(),
+            line.substring(21, 22).trim(),
             int.parse(line.substring(22, 26).trim()),
             double.parse(line.substring(30, 38).trim()),
             double.parse(line.substring(38, 46).trim()),

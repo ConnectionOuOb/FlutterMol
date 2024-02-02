@@ -3,11 +3,11 @@ import '../geometry/controller.dart';
 
 List<String> backbones = ['N', 'CA', 'C'];
 
-bool inRealm(Atom from, Atom to, List<Realm> realms) {
+bool inRealm(Point3D from, Point3D to, List<Realm> realms) {
   bool result = false;
 
   for (var realm in realms) {
-    if (from.chainIdentifier != realm.startChain || to.chainIdentifier != realm.endChain) {
+    if (from.chainID != realm.startChain || to.chainID != realm.endChain) {
       continue;
     }
 
@@ -38,7 +38,7 @@ Point3D computeCenterPoint(List<Point3D> points) {
   double centerY = totalY / points.length;
   double centerZ = totalZ / points.length;
 
-  return Point3D(false, false, centerX, centerY, centerZ);
+  return Point3D(false, false, 0, "", centerX, centerY, centerZ);
 }
 
 StructureController transform2Controller(String textPDB) {
@@ -46,50 +46,37 @@ StructureController transform2Controller(String textPDB) {
   List<Line3D> lines = [];
   List<Point3D> points = [];
 
-  for (var idx = 0; idx < pdbData.atoms.length; idx++) {
-    bool isBackBone = backbones.contains(pdbData.atoms[idx].name);
+  for (var atom in pdbData.atoms) {
+    bool isBackBone = backbones.contains(atom.name);
 
     if (!isBackBone) {
       continue;
     }
 
-    Point3D thisPoint = Point3D(
-      isBackBone,
-      pdbData.atoms[idx].name == 'N',
-      pdbData.atoms[idx].x,
-      pdbData.atoms[idx].y,
-      pdbData.atoms[idx].z,
-    );
-    if (idx + 1 == pdbData.atoms.length) {
-      points.add(thisPoint);
-    } else {
-      int nextIdx = idx + 1;
-      Point3D nextPoint = Point3D(
-        backbones.contains(pdbData.atoms[nextIdx].name),
-        pdbData.atoms[nextIdx].name == 'N',
-        pdbData.atoms[nextIdx].x,
-        pdbData.atoms[nextIdx].y,
-        pdbData.atoms[nextIdx].z,
-      );
-
-      if (inRealm(pdbData.atoms[idx], pdbData.atoms[idx + 1], pdbData.helices)) {
-        lines.add(Line3D(true, false, thisPoint, nextPoint));
-      } else if (inRealm(pdbData.atoms[idx], pdbData.atoms[idx + 1], pdbData.helices)) {
-        lines.add(Line3D(false, true, thisPoint, nextPoint));
-      }
-
-      points.add(thisPoint);
-    }
+    points.add(Point3D(isBackBone, atom.name == 'N', atom.residueSequenceNumber, atom.chainIdentifier, atom.x, atom.y, atom.z));
   }
 
   Point3D center = computeCenterPoint(points);
 
-  return StructureController(
-    0,
-    true,
-    lines,
-    points.map((e) {
-      return Point3D(e.isBackBone, e.isNitrogen, e.x - center.x, e.y - center.y, e.z - center.z);
-    }).toList(),
-  );
+  points = points.map((e) {
+    return Point3D(e.isBackBone, e.isNitrogen, e.residueSequenceNumber, e.chainID, e.x - center.x, e.y - center.y, e.z - center.z);
+  }).toList();
+
+  for (var idx = 0; idx < points.length - 1; idx++) {
+    int nextIdx = idx + 1;
+
+    if (points[idx].chainID != points[nextIdx].chainID) {
+      continue;
+    }
+
+    if (inRealm(points[idx], points[nextIdx], pdbData.helices)) {
+      lines.add(Line3D(true, false, points[idx], points[nextIdx]));
+    } else if (inRealm(points[idx], points[nextIdx], pdbData.sheets)) {
+      lines.add(Line3D(false, true, points[idx], points[nextIdx]));
+    } else {
+      lines.add(Line3D(false, false, points[idx], points[nextIdx]));
+    }
+  }
+
+  return StructureController(0, true, lines, points);
 }

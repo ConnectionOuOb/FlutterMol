@@ -31,6 +31,7 @@ class _Point3dViewState extends State<Point3dView> {
       child: CustomPaint(
         size: Size(widget.width, widget.height),
         painter: ThreeDPointsPainter(
+          widget.controller.lines,
           widget.controller.points,
           widget.scaleFactor,
           rotationX,
@@ -43,46 +44,44 @@ class _Point3dViewState extends State<Point3dView> {
 }
 
 class ThreeDPointsPainter extends CustomPainter {
+  final List<Line3D> lines;
   final List<Point3D> points;
   final double scaleFactor;
   final double rotationX;
   final double rotationY;
   final Offset center;
-  final Offset origin = Offset.zero;
 
-  ThreeDPointsPainter(this.points, this.scaleFactor, this.rotationX, this.rotationY, [this.center = Offset.zero]);
+  ThreeDPointsPainter(this.lines, this.points, this.scaleFactor, this.rotationX, this.rotationY, [this.center = Offset.zero]);
 
   @override
   void paint(Canvas canvas, Size size) {
     final transformedPoints = points.map((point) {
-      final scaledPoint = Point3D(
-        point.isBackBone,
-        point.isNitrogen,
-        point.x * scaleFactor,
-        point.y * scaleFactor,
-        point.z * scaleFactor,
-      );
-      final rotatedPoint = rotatePoint(scaledPoint, rotationX, rotationY);
-      return rotatedPoint.translate(origin.dx, origin.dy, center);
+      return rotatePoint(point.scale(scaleFactor), rotationX, rotationY).setCenter(center);
     }).toList();
 
-    /*for (int i = 0; i < transformedPoints.length - 1; i++) {
+    for (var line in lines) {
+      Point3D from = rotatePoint(line.from.scale(scaleFactor), rotationX, rotationY).setCenter(center);
+      Point3D to = rotatePoint(line.to.scale(scaleFactor), rotationX, rotationY).setCenter(center);
+
       canvas.drawLine(
-        transformedPoints[i].toOffset(),
-        transformedPoints[i + 1].toOffset(),
-        Paint()
-          ..color = Colors.lightBlueAccent
-          ..strokeWidth = 2.0
-          ..strokeCap = StrokeCap.round,
-      );
-    }*/
-    canvas.drawPoints(
+          from.toOffset(),
+          to.toOffset(),
+          Paint()
+            ..strokeWidth = 4.0
+            ..color = line.isHelix
+                ? Colors.blue
+                : line.isSheet
+                    ? Colors.red
+                    : Colors.black);
+    }
+
+    /*canvas.drawPoints(
       PointMode.points,
       transformedPoints.map((e) => e.toOffset()).toList(),
       Paint()
         ..color = Colors.redAccent
         ..strokeWidth = 5.0,
-    );
+    );*/
   }
 
   @override
@@ -100,6 +99,14 @@ class ThreeDPointsPainter extends CustomPainter {
     final rotatedY = point.x * sinY * sinX + point.y * cosX + point.z * sinX * cosY;
     final rotatedZ = point.x * sinY * cosX - point.y * sinX + point.z * cosX * cosY;
 
-    return Point3D(point.isBackBone, point.isNitrogen, rotatedX, rotatedY, rotatedZ);
+    return Point3D(
+      point.isBackBone,
+      point.isNitrogen,
+      point.residueSequenceNumber,
+      point.chainID,
+      rotatedX,
+      rotatedY,
+      rotatedZ,
+    );
   }
 }
