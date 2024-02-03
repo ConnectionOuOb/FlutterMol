@@ -96,23 +96,37 @@ class ThreeDPointsPainter extends CustomPainter {
               );
             }
           } else if (part.sse == SSE.helix) {
-            final path = Path();
+            /*final path = Path();
             final startPoint = rotatePoint(part.points[0].scale(scaleFactor), rotationX, rotationY).setCenter(center).toOffset();
             path.moveTo(startPoint.dx, startPoint.dy);
             for (var i = 1; i < part.points.length; i++) {
               final routePoint = rotatePoint(part.points[i].scale(scaleFactor), rotationX, rotationY).setCenter(center).toOffset();
               path.lineTo(routePoint.dx, routePoint.dy);
             }
-            canvas.drawPath(path, paint);
+            canvas.drawPath(path, paint);*/
+            for (var i = 0; i < part.points.length - 1; i++) {
+              canvas.drawLine(
+                rotatePoint(part.points[i].scale(scaleFactor), rotationX, rotationY).setCenter(center).toOffset(),
+                rotatePoint(part.points[i + 1].scale(scaleFactor), rotationX, rotationY).setCenter(center).toOffset(),
+                paint,
+              );
+            }
           } else if (part.sse == SSE.sheet) {
-            final path = Path();
+            /*final path = Path();
             final startPoint = rotatePoint(part.points[0].scale(scaleFactor), rotationX, rotationY).setCenter(center).toOffset();
             path.moveTo(startPoint.dx, startPoint.dy);
             for (var i = 1; i < part.points.length; i++) {
               final routePoint = rotatePoint(part.points[i].scale(scaleFactor), rotationX, rotationY).setCenter(center).toOffset();
               path.lineTo(routePoint.dx, routePoint.dy);
             }
-            canvas.drawPath(path, paint);
+            canvas.drawPath(path, paint);*/
+            for (var i = 0; i < part.points.length - 1; i++) {
+              canvas.drawLine(
+                rotatePoint(part.points[i].scale(scaleFactor), rotationX, rotationY).setCenter(center).toOffset(),
+                rotatePoint(part.points[i + 1].scale(scaleFactor), rotationX, rotationY).setCenter(center).toOffset(),
+                paint,
+              );
+            }
           }
         }
       }
