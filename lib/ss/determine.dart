@@ -1,4 +1,4 @@
-import '../geometry/controller.dart';
+import '../object.dart';
 
 const double deltaH = 2.10;
 const double deltaE = 1.42;
@@ -8,7 +8,8 @@ enum SSE {
   helix(code: "H", name: "Helix"),
   sheet(code: "E", name: "Sheet"),
   turn(code: "T", name: "Turn"),
-  coil(code: "C", name: "Coil");
+  coil(code: "C", name: "Coil"),
+  unknown(code: "X", name: "Unknown");
 
   final String code;
   final String name;
@@ -45,8 +46,8 @@ SSE determineSSE(double dis13, double dis14, double dis15, double dis24, double 
   return SSE.coil;
 }
 
-List<SSE> pos3Ds2SS(List<Point3D> points) {
-  List<SSE> ret = [];
+List<Point3D> point3Ds2SS(List<Point3D> points) {
+  List<Point3D> ret = [];
 
   for (var a3 = 0; a3 < points.length; a3++) {
     int a1 = a3 - 2;
@@ -54,20 +55,22 @@ List<SSE> pos3Ds2SS(List<Point3D> points) {
     int a4 = a3 + 1;
     int a5 = a3 + 2;
 
+    Point3D old = points[a3];
+
     if (a1 < 0 || a5 >= points.length) {
-      ret.add(SSE.coil);
+      old.sse = SSE.coil;
     } else {
-      ret.add(
-        determineSSE(
-          points[a1].distanceTo(points[a3]),
-          points[a1].distanceTo(points[a4]),
-          points[a1].distanceTo(points[a5]),
-          points[a2].distanceTo(points[a4]),
-          points[a2].distanceTo(points[a5]),
-          points[a3].distanceTo(points[a5]),
-        ),
+      old.sse = determineSSE(
+        points[a1].distanceTo(points[a3]),
+        points[a1].distanceTo(points[a4]),
+        points[a1].distanceTo(points[a5]),
+        points[a2].distanceTo(points[a4]),
+        points[a2].distanceTo(points[a5]),
+        points[a3].distanceTo(points[a5]),
       );
     }
+
+    ret.add(old);
   }
 
   return ret;

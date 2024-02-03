@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
-
 import 'object.dart';
+import 'package:flutter/material.dart';
 
 Setting setting = Setting(4.5, 1.5);
 List<ColorSS> colorSS = [

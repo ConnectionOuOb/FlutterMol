@@ -1,24 +1,6 @@
 import 'format.dart';
-import '../geometry/controller.dart';
-
-List<String> backbones = ['N', 'CA', 'C'];
-
-bool inRealm(Point3D p, List<Realm> realms) {
-  bool result = false;
-
-  for (var realm in realms) {
-    if (p.chainID != realm.chainID) {
-      continue;
-    }
-
-    if (p.residueSequenceNumber >= realm.start && p.residueSequenceNumber <= realm.end) {
-      result = true;
-      break;
-    }
-  }
-
-  return result;
-}
+import '../object.dart';
+import '../ss/determine.dart';
 
 Point3D computeCenterPoint(List<Point3D> points) {
   double totalX = 0.0;
@@ -35,50 +17,64 @@ Point3D computeCenterPoint(List<Point3D> points) {
   double centerY = totalY / points.length;
   double centerZ = totalZ / points.length;
 
-  return Point3D(false, false, 0, "", centerX, centerY, centerZ);
+  return Point3D(SSE.unknown, "", centerX, centerY, centerZ);
 }
 
-StructureController transform2Controller(String name, String textPDB) {
-  List<Point3D> points = [];
+StructureController transform2Controller(String name, List<String> textPDBs) {
+  List<Point3D> cas = [];
   List<Partition> parts = [];
 
-  PDB pdbData = PDB.fromText(textPDB);
+  PDB pdbData = PDB.fromStringList(textPDBs);
 
-  for (var atom in pdbData.atoms) {
-    bool isBackBone = backbones.contains(atom.name);
-
-    if (!isBackBone) {
-      continue;
-    }
-
-    points.add(Point3D(isBackBone, atom.name == 'N', atom.residueSequenceNumber, atom.chainIdentifier, atom.x, atom.y, atom.z));
+  for (var aa in pdbData.aas) {
+    cas.add(Point3D(SSE.unknown, aa.chainIdentifier, aa.atoms[1].x, aa.atoms[1].y, aa.atoms[1].z));
   }
 
-  Point3D center = computeCenterPoint(points);
+  cas = point3Ds2SS(cas);
 
-  points = points.map((e) {
-    return Point3D(e.isBackBone, e.isNitrogen, e.residueSequenceNumber, e.chainID, e.x - center.x, e.y - center.y, e.z - center.z);
+  Point3D center = computeCenterPoint(cas);
+
+  cas = cas.map((e) {
+    return Point3D(e.sse, e.chainID, e.x - center.x, e.y - center.y, e.z - center.z);
   }).toList();
 
   String previousChain = "";
-  for (var p in points) {
-    int ssType = inRealm(p, pdbData.helices)
-        ? 1
-        : inRealm(p, pdbData.sheets)
-            ? 2
-            : 0;
-
+  for (var p in cas) {
     if (parts.isEmpty) {
-      parts.add(Partition(ssType, [p]));
+      parts.add(Partition(p.sse, [p]));
     } else {
-      if (parts.last.ssType == ssType && p.chainID == previousChain) {
+      if (parts.last.sse == p.sse && p.chainID == previousChain) {
         parts.last.points.add(p);
       } else {
-        parts.add(Partition(ssType, [p]));
+        parts.add(Partition(p.sse, [p]));
       }
     }
     previousChain = p.chainID;
   }
 
   return StructureController(0, true, name, parts);
+}
+
+List<StructureController> text2Controllers(String name, String text) {
+  bool goSecond = false;
+  List<String> names = name.split("-");
+  List<String> queryLines = [];
+  List<String> subjectLines = [];
+
+  for (var line in text.split("\n")) {
+    if (line.startsWith("ATOM")) {
+      if (goSecond) {
+        subjectLines.add(line);
+      } else {
+        queryLines.add(line);
+      }
+    } else if (line.startsWith("TER")) {
+      goSecond = true;
+    }
+  }
+
+  return [
+    transform2Controller("Query: ${names[0]}", queryLines),
+    transform2Controller("Subject: ${names[1]}", subjectLines),
+  ];
 }

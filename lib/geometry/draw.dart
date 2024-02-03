@@ -1,9 +1,10 @@
-import 'dart:ui';
-
-import 'controller.dart';
 import '../config.dart';
+import '../object.dart';
+import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+
+import '../ss/determine.dart';
 
 class Point3dView extends StatefulWidget {
   const Point3dView({super.key, required this.controllers, required this.width, required this.height, required this.scaleFactor});
@@ -61,15 +62,15 @@ class ThreeDPointsPainter extends CustomPainter {
       }
 
       for (var part in controller.parts) {
-        if (part.ssType < 0 || part.ssType > 2 || part.points.isEmpty) {
+        if (part.points.isEmpty) {
           continue;
         }
 
         final paint = Paint()
           ..strokeWidth = 4.0
-          ..color = part.ssType == 1
+          ..color = part.sse == SSE.helix
               ? colorSS[controller.showType].helix
-              : part.ssType == 2
+              : part.sse == SSE.sheet
                   ? colorSS[controller.showType].sheet
                   : colorSS[controller.showType].normal;
 
@@ -86,7 +87,7 @@ class ThreeDPointsPainter extends CustomPainter {
             paint,
           );
         } else {
-          if (part.ssType == 0) {
+          if (part.sse == SSE.coil || part.sse == SSE.turn || part.sse == SSE.unknown) {
             for (var i = 0; i < part.points.length - 1; i++) {
               canvas.drawLine(
                 rotatePoint(part.points[i].scale(scaleFactor), rotationX, rotationY).setCenter(center).toOffset(),
@@ -94,7 +95,7 @@ class ThreeDPointsPainter extends CustomPainter {
                 paint,
               );
             }
-          } else if (part.ssType == 1) {
+          } else if (part.sse == SSE.helix) {
             final path = Path();
             final startPoint = rotatePoint(part.points[0].scale(scaleFactor), rotationX, rotationY).setCenter(center).toOffset();
             path.moveTo(startPoint.dx, startPoint.dy);
@@ -103,7 +104,7 @@ class ThreeDPointsPainter extends CustomPainter {
               path.lineTo(routePoint.dx, routePoint.dy);
             }
             canvas.drawPath(path, paint);
-          } else if (part.ssType == 2) {
+          } else if (part.sse == SSE.sheet) {
             final path = Path();
             final startPoint = rotatePoint(part.points[0].scale(scaleFactor), rotationX, rotationY).setCenter(center).toOffset();
             path.moveTo(startPoint.dx, startPoint.dy);
@@ -133,14 +134,6 @@ class ThreeDPointsPainter extends CustomPainter {
     final rotatedY = point.x * sinY * sinX + point.y * cosX + point.z * sinX * cosY;
     final rotatedZ = point.x * sinY * cosX - point.y * sinX + point.z * cosX * cosY;
 
-    return Point3D(
-      point.isBackBone,
-      point.isNitrogen,
-      point.residueSequenceNumber,
-      point.chainID,
-      rotatedX,
-      rotatedY,
-      rotatedZ,
-    );
+    return Point3D(point.sse, point.chainID, rotatedX, rotatedY, rotatedZ);
   }
 }

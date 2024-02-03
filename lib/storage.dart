@@ -1,30 +1,27 @@
+import 'object.dart';
 import 'pdb/transform.dart';
-import 'geometry/controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Future<void> saveLocalStoragePDB(String query, String subject) async {
+Future<void> saveLocalStoragePDB(String name, String data) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  prefs.setString("query", query);
-  prefs.setString("subject", subject);
+  prefs.setString(name, data);
 }
 
-Future<void> clearLocalStoragePDB() async {
+Future<void> clearLocalStoragePDB(String name) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  prefs.remove("query");
-  prefs.remove("subject");
+  prefs.remove(name);
 }
 
-Future<List<StructureController>> loadLocalStoragePDB() async {
+Future<List<StructureController>> loadLocalStoragePDB(name) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  String query = prefs.getString("query") ?? '';
-  String subject = prefs.getString("subject") ?? '';
+  String data = prefs.getString(name) ?? '';
 
-  if (query.isNotEmpty && subject.isNotEmpty) {
-    return [transform2Controller("query", query), transform2Controller("subject", subject)];
+  if (data.isNotEmpty) {
+    return text2Controllers(name, data);
+  } else {
+    return [];
   }
-
-  return [];
 }

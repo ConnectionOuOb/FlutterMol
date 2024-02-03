@@ -1,10 +1,8 @@
 import 'config.dart';
+import 'object.dart';
 import 'storage.dart';
-import 'data/query.dart';
-import 'data/subject.dart';
-//import 'data/test_data.dart';
+import 'data/test_data.dart';
 import 'geometry/draw.dart';
-import 'geometry/controller.dart';
 import 'package:flutter/material.dart';
 
 late List<StructureController> controllers;
@@ -12,9 +10,9 @@ late List<StructureController> controllers;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await clearLocalStoragePDB();
-  await saveLocalStoragePDB(query, subject);
-  await loadLocalStoragePDB().then((value) => controllers = value);
+  await clearLocalStoragePDB(testName);
+  await saveLocalStoragePDB(testName, testData);
+  await loadLocalStoragePDB(testName).then((value) => controllers = value);
 
   runApp(const FlutterMol());
 }
