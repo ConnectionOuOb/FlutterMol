@@ -1,80 +1,65 @@
-class Realm {
-  int start;
-  int end;
-  String chainID;
-
-  Realm(this.start, this.end, this.chainID);
-}
-
 class Atom {
-  int serialNumber;
   String name;
-  String residueName;
-  String chainIdentifier;
-  int residueSequenceNumber;
   double x;
   double y;
   double z;
 
   Atom(
-    this.serialNumber,
     this.name,
-    this.residueName,
-    this.chainIdentifier,
-    this.residueSequenceNumber,
     this.x,
     this.y,
     this.z,
   );
 }
 
-class PDB {
+class Residue {
+  String name;
+  String chainIdentifier;
+  int sequenceNumber;
   List<Atom> atoms;
-  List<Realm> helices;
-  List<Realm> sheets;
 
-  PDB(this.atoms, this.helices, this.sheets);
+  Residue(this.name, this.chainIdentifier, this.sequenceNumber, this.atoms);
+}
 
-  factory PDB.fromText(String text) {
-    List<Atom> atoms = [];
-    List<Realm> helices = [];
-    List<Realm> sheets = [];
+class PDB {
+  List<Residue> aas;
 
-    for (var line in text.split("\n")) {
-      if (line.startsWith("ATOM")) {
-        atoms.add(
-          Atom(
-            int.parse(line.substring(6, 11).trim()),
-            line.substring(12, 16).trim(),
-            line.substring(17, 20).trim(),
-            line.substring(21, 22).trim(),
-            int.parse(line.substring(22, 26).trim()),
-            double.parse(line.substring(30, 38).trim()),
-            double.parse(line.substring(38, 46).trim()),
-            double.parse(line.substring(46, 54).trim()),
-          ),
-        );
-      } else if (line.startsWith("HELIX")) {
-        helices.add(
-          Realm(
-            int.parse(line.substring(21, 25).trim()),
-            int.parse(line.substring(33, 37).trim()),
-            line.substring(19, 20).trim(),
-          ),
-        );
-      } else if (line.startsWith("SHEET")) {
-        sheets.add(
-          Realm(
-            int.parse(line.substring(22, 26).trim()),
-            int.parse(line.substring(33, 37).trim()),
-            line.substring(21, 22).trim(),
-          ),
-        );
-      } else if (line.startsWith("END")) {
-        break;
+  PDB(this.aas);
+
+  factory PDB.fromStringList(List<String> texts) {
+    List<Residue> aas = [];
+
+    int previousSequenceNumber = -1;
+    for (var text in texts) {
+      if (!text.startsWith("ATOM")) {
+        continue;
       }
+
+      int sequenceNumber = int.parse(text.substring(22, 26).trim());
+
+      if (sequenceNumber == previousSequenceNumber) {
+        aas.last.atoms.add(
+          Atom(
+            text.substring(12, 16).trim(),
+            double.parse(text.substring(30, 38).trim()),
+            double.parse(text.substring(38, 46).trim()),
+            double.parse(text.substring(46, 54).trim()),
+          ),
+        );
+      } else {
+        aas.add(
+          Residue(
+            text.substring(17, 20).trim(),
+            text.substring(21, 22).trim(),
+            sequenceNumber,
+            [],
+          ),
+        );
+      }
+
+      previousSequenceNumber = sequenceNumber;
     }
 
-    return PDB(atoms, helices, sheets);
+    return PDB(aas);
   }
 }
