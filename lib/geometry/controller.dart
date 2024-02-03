@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:math' as math;
 
 class Point3D {
   bool isBackBone;
@@ -21,6 +22,14 @@ class Point3D {
 
   Point3D setCenter(Offset center) {
     return Point3D(isBackBone, isNitrogen, residueSequenceNumber, chainID, center.dx + x, center.dy + y, z);
+  }
+
+  distanceTo(other) {
+    double dx = x - other.x;
+    double dy = y - other.y;
+    double dz = z - other.z;
+
+    return math.sqrt(dx * dx + dy * dy + dz * dz);
   }
 }
 
