@@ -35,7 +35,6 @@ class StructureController {
   StructureController(this.showType, this.visible, this.name, this.parts);
 }
 
-
 class Point3D {
   SSE sse;
   String chainID;
@@ -55,6 +54,11 @@ class Point3D {
 
   Offset toOffset() {
     return Offset(x, y);
+  }
+
+  Point3D normalize() {
+    double magnitude = math.sqrt(x * x + y * y + z * z)/16;
+    return Point3D(sse, chainID, x / magnitude, y / magnitude, z / magnitude);
   }
 
   Point3D scale(double factor) {
