@@ -1,3 +1,4 @@
+import '../config.dart';
 import '../object.dart';
 import '../ss/determine.dart';
 import 'dart:math' as math;
@@ -75,18 +76,18 @@ class ThreeDPointsPainter extends CustomPainter {
           notShow.addAll(part.points);
           continue;
         } else if (part.points.length == 2) {
-          drawLine(part.points, canvas);
+          drawLine(part.points, canvas, controller.showType);
         } else {
           if (part.sse == SSE.coil || part.sse == SSE.turn || part.sse == SSE.unknown) {
-            drawLine(part.points, canvas);
+            drawLine(part.points, canvas, controller.showType);
           } else if (part.sse == SSE.helix) {
-            drawHelix(part.points, canvas);
+            drawHelix(part.points, canvas, controller.showType);
           } else if (part.sse == SSE.sheet) {
-            drawSheet(part.points, canvas);
+            drawSheet(part.points, canvas, controller.showType);
           }
         }
 
-        drawLine([prePoint, part.points[0]], canvas);
+        drawLine([prePoint, part.points[0]], canvas, controller.showType);
         prePoint = part.points.last;
       }
     }
@@ -114,14 +115,14 @@ class ThreeDPointsPainter extends CustomPainter {
     ).setCenter(center);
   }
 
-  drawLine(List<Point3D> points, Canvas canvas) {
+  drawLine(List<Point3D> points, Canvas canvas, int showType) {
     final paint = Paint()
       ..strokeWidth = 4
       ..color = points[0].sse == SSE.helix
-          ? Colors.red
+          ? colorSS[showType].helix
           : points[0].sse == SSE.sheet
-              ? Colors.blue
-              : Colors.black;
+              ? colorSS[showType].sheet
+              : colorSS[showType].normal;
 
     for (var i = 0; i < points.length - 1; i++) {
       canvas.drawLine(
@@ -132,10 +133,10 @@ class ThreeDPointsPainter extends CustomPainter {
     }
   }
 
-  drawHelix(List<Point3D> points, Canvas canvas) {
+  drawHelix(List<Point3D> points, Canvas canvas, int showType) {
     final paint = Paint()
       ..strokeWidth = 10
-      ..color = Colors.red;
+      ..color = colorSS[showType].helix;
 
     for (var i = 0; i < points.length - 1; i++) {
       final a = rotatePoint(points[i]);
@@ -177,10 +178,10 @@ class ThreeDPointsPainter extends CustomPainter {
     */
   }
 
-  drawSheet(List<Point3D> points, Canvas canvas) {
+  drawSheet(List<Point3D> points, Canvas canvas, int showType) {
     final paint = Paint()
       ..strokeWidth = 10
-      ..color = Colors.blue;
+      ..color = colorSS[showType].sheet;
 
     for (var i = 0; i < points.length - 1; i++) {
       canvas.drawLine(
