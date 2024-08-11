@@ -1,7 +1,7 @@
 # FlutterMol
 ### A protein structure viewer written by Flutter framework
 
-### Demo
+## Demo
 - [FlutterMol](https://connectionouob.github.io/FlutterMol/)
 
 ## Download
